@@ -30,8 +30,8 @@ class Player(pygame.sprite.Sprite):
 
         width = 33
         height = 90 # Load left and right facing sprites and save
-        self.right_img = pygame.image.load("orpheus_ri1.png").convert_alpha()
-        self.left_img = pygame.image.load("orpheus_li1.png").convert_alpha()
+        self.right_img = pygame.image.load("sprites/orpheus_ri1.png").convert_alpha()
+        self.left_img = pygame.image.load("sprites/orpheus_li1.png").convert_alpha()
         self.right_img = pygame.transform.scale(self.right_img, [width, height])
         self.left_img = pygame.transform.scale(self.left_img, [width, height])
 
@@ -123,40 +123,40 @@ class Platform(pygame.sprite.Sprite):
         rotate = -1
         texture_file = ""
         if neighbors == [1,1,1,1]:
-            texture_file = "bad_lava.png" # bad solution
+            texture_file = "sprites/bad_lava.png" # bad solution
             # need to change Platform class to have tile_type attribute
         elif neighbors == [0,255,255,255]: # standard floor
             r = random.randint(1,3)
-            texture_file = "cave_f" + str(r) + ".png"
+            texture_file = "sprites/cave_f" + str(r) + ".png"
         elif neighbors == [255,255,0,255]: # ceiling
             r = random.randint(1,2)
-            texture_file = "cave_c" + str(r) + ".png"
+            texture_file = "sprites/cave_c" + str(r) + ".png"
         elif neighbors == [255,0,255,255]: # left wall
-            texture_file = "cave_l1.png"
+            texture_file = "sprites/cave_l1.png"
         elif neighbors == [255,255,255,0]: # right wall
-            texture_file = "cave_r1.png"
+            texture_file = "sprites/cave_r1.png"
         elif neighbors == [0,0,255,255]: # corner like ^^|
-            texture_file = "cave_ur.png"
+            texture_file = "sprites/cave_ur.png"
             rotate = 0
         elif neighbors == [0,255,255,0]: # corner like |^^
-            texture_file = "cave_ur.png"
+            texture_file = "sprites/cave_ur.png"
             rotate = 90
         elif neighbors == [255,255,0,0]: # corner like |_
-            texture_file = "cave_ur.png"
+            texture_file = "sprites/cave_ur.png"
             rotate = 180
         elif neighbors == [255,0,0,255]: # corner like _|
-            texture_file = "cave_ur.png"
+            texture_file = "sprites/cave_ur.png"
             rotate = -90
         else:
             r = random.randint(1,5)
             if r < 3:
-                texture_file = "cave_d" + str(r) + ".png"
+                texture_file = "sprites/cave_d" + str(r) + ".png"
                 rrot = random.randint(0,3)
                 rots = [0, 90, 180, 270]
                 rotate = rots[rrot]
             else:
-                texture_file = "cave_d0.png"
-        tile = pygame.image.load(texture_file).convert()
+                texture_file = "sprites/cave_d0.png"
+        tile = pygame.image.load(texture_file).convert_alpha()
         tile = pygame.transform.scale(tile, [width, height])
         if rotate != -1:
             tile = pygame.transform.rotate(tile, rotate)
@@ -172,7 +172,7 @@ class Level(object):
 
         self.player = player
         # Background image
-        self.background = pygame.image.load("backg.jpeg").convert()
+        self.background = pygame.image.load("sprites/backg.jpeg").convert_alpha()
 
         self.world_shift_x = 0 # this will keep track of how much we've shifted
         self.world_shift_y = 0
@@ -228,29 +228,29 @@ class Level_01(Level):
 
         self.level_limit = 4000
 
-        img = png.Reader("level1.png").asDirect()
+        img = png.Reader("sprites/level1.png").asDirect()
         width = img[0]
         height = img[1]
         pixels = list(img[2])
 
         sidelength = 50
         for row_i in range(height):
-            for col_i in range(0,4*width, 4):
+            for col_i in range(width):
                 if pixels[row_i][col_i] == 255: # this needs to be a tile
                     neighbors = []
                     neighbors.append(pixels[row_i - 1][col_i]) # add all neighbors in ARBL pattern
-                    neighbors.append(pixels[row_i][col_i + 4])
+                    neighbors.append(pixels[row_i][col_i + 1])
                     neighbors.append(pixels[row_i + 1][col_i])
-                    neighbors.append(pixels[row_i][col_i - 4])
+                    neighbors.append(pixels[row_i][col_i - 1])
                     block = Platform(sidelength, sidelength, neighbors) # Platform() takes care of correct texture
-                    block.rect.x = (col_i/4)*sidelength
+                    block.rect.x = (col_i)*sidelength
                     block.rect.y = row_i*sidelength
                     block.player = self.player
                     self.platform_list.add(block)
                 if pixels[row_i][col_i] == 200:
                     neighbors = [1,1,1,1]
                     block = Platform(sidelength, sidelength, neighbors)  # Platform() takes care of correct texture
-                    block.rect.x = (col_i / 4) * sidelength
+                    block.rect.x = (col_i) * sidelength
                     block.rect.y = row_i * sidelength
                     block.player = self.player
                     self.platform_list.add(block)
