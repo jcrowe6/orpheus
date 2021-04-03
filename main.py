@@ -2,7 +2,7 @@ import pygame
 import png
 import random
 
-from pygame import *
+# from pygame import *
 
 # Global constants
 
@@ -17,10 +17,10 @@ DARK_GREY = (10, 10, 13)
 LIGHT_GREY = (90, 90, 90)
 
 # Screen dimensions
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-#SCREEN_WIDTH = 1200
-#SCREEN_HEIGHT = 900
+#SCREEN_WIDTH = 800
+#SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 900
 
 
 
