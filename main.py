@@ -19,6 +19,8 @@ LIGHT_GREY = (90, 90, 90)
 # Screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+#SCREEN_WIDTH = 1200
+#SCREEN_HEIGHT = 900
 
 
 
@@ -329,25 +331,29 @@ def main():
         # current_level.update()
 
         # If the player gets near the right side, shift the world left (-x)
-        if player.rect.right >= 500:
-            diff = player.rect.right - 500
-            player.rect.right = 500
+        scroll_right = (SCREEN_WIDTH*0.6)
+        scroll_left = (SCREEN_WIDTH*0.3)
+        if player.rect.right >= scroll_right:
+            diff = player.rect.right - scroll_right
+            player.rect.right = scroll_right
             current_level.shift_world(-diff,0)
 
         # If the player gets near the left side, shift the world right (+x)
-        if player.rect.left <= 300:
-            diff = 300 - player.rect.left
-            player.rect.left = 300
+        if player.rect.left <= scroll_left:
+            diff = scroll_left - player.rect.left
+            player.rect.left = scroll_left
             current_level.shift_world(diff,0)
 
-        if player.rect.bottom >= 400:
-            diff = player.rect.bottom - 400
-            player.rect.bottom = 400
+        scroll_down = (SCREEN_HEIGHT*0.6)
+        scroll_up = (SCREEN_HEIGHT*0.4)
+        if player.rect.bottom >= scroll_down:
+            diff = player.rect.bottom - scroll_down
+            player.rect.bottom = scroll_down
             current_level.shift_world(0, -diff)
 
-        if player.rect.top <= 100:
-            diff = 100 - player.rect.top
-            player.rect.top = 100
+        if player.rect.top <= scroll_up:
+            diff = scroll_up - player.rect.top
+            player.rect.top = scroll_up
             current_level.shift_world(0, diff)
 
         # needs to be more robust. calculate both coords, and store
