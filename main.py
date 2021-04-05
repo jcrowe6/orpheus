@@ -17,10 +17,10 @@ DARK_GREY = (10, 10, 13)
 LIGHT_GREY = (90, 90, 90)
 
 # Screen dimensions
-#SCREEN_WIDTH = 800
-#SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 900
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+#SCREEN_WIDTH = 1000
+#SCREEN_HEIGHT = 750
 
 
 
@@ -49,7 +49,6 @@ class Player(pygame.sprite.Sprite):
         self.level = None
 
     def update(self):
-        """ Move the player. """
         # Gravity
         self.calc_grav()
 
@@ -117,53 +116,63 @@ class Player(pygame.sprite.Sprite):
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, width, height, neighbors):
+    def __init__(self, width, height, data):
         super().__init__()
-
+        # data is either a tile id specifier (for lava, water, other tiles)
+        # or it's just rock, and witll
         # uses list of neighbors to determine which kind of sprite to use
         # neighbors -> [above, right, below, left]
-        rotate = -1
-        texture_file = ""
-        if neighbors == [1,1,1,1]:
-            texture_file = "sprites/bad_lava.png" # bad solution
-            # need to change Platform class to have tile_type attribute
-        elif neighbors == [0,255,255,255]: # standard floor
-            r = random.randint(1,3)
-            texture_file = "sprites/cave_f" + str(r) + ".png"
-        elif neighbors == [255,255,0,255]: # ceiling
-            r = random.randint(1,2)
-            texture_file = "sprites/cave_c" + str(r) + ".png"
-        elif neighbors == [255,0,255,255]: # left wall
-            texture_file = "sprites/cave_l1.png"
-        elif neighbors == [255,255,255,0]: # right wall
-            texture_file = "sprites/cave_r1.png"
-        elif neighbors == [0,0,255,255]: # corner like ^^|
-            texture_file = "sprites/cave_ur.png"
-            rotate = 0
-        elif neighbors == [0,255,255,0]: # corner like |^^
-            texture_file = "sprites/cave_ur.png"
-            rotate = 90
-        elif neighbors == [255,255,0,0]: # corner like |_
-            texture_file = "sprites/cave_ur.png"
-            rotate = 180
-        elif neighbors == [255,0,0,255]: # corner like _|
-            texture_file = "sprites/cave_ur.png"
-            rotate = -90
+        rotate = 0
+        if data == 186:
+            texture_file = "sprites/bad_lava.png"
+            tile_id = 1
+        elif data == 78:
+            texture_file = "sprites/water_t.png"
+            tile_id = 2
+        elif data == 35:
+            texture_file = "sprites/water_u1.png"
+            tile_id = 3
         else:
-            r = random.randint(1,5)
-            if r < 3:
-                texture_file = "sprites/cave_d" + str(r) + ".png"
-                rrot = random.randint(0,3)
-                rots = [0, 90, 180, 270]
-                rotate = rots[rrot]
+            tile_id = 0
+            if data == [0,255,255,255]: # standard floor
+                r = random.randint(1,3)
+                texture_file = "sprites/cave_f" + str(r) + ".png"
+            elif data == [255,255,0,255]: # ceiling
+                r = random.randint(1,2)
+                texture_file = "sprites/cave_c" + str(r) + ".png"
+            elif data == [255,0,255,255]: # left wall
+                texture_file = "sprites/cave_l1.png"
+            elif data == [255,255,255,0]: # right wall
+                texture_file = "sprites/cave_r1.png"
+            elif data == [0,0,255,255]: # corner like ^^|
+                texture_file = "sprites/cave_ur.png"
+                rotate = 0
+            elif data == [0,255,255,0]: # corner like |^^
+                texture_file = "sprites/cave_ur.png"
+                rotate = 90
+            elif data == [255,255,0,0]: # corner like |_
+                texture_file = "sprites/cave_ur.png"
+                rotate = 180
+            elif data == [255,0,0,255]: # corner like _|
+                texture_file = "sprites/cave_ur.png"
+                rotate = -90
             else:
-                texture_file = "sprites/cave_d0.png"
+                r = random.randint(1,5)
+                if r < 3:
+                    texture_file = "sprites/cave_d" + str(r) + ".png"
+                    rrot = random.randint(0,3)
+                    rots = [0, 90, 180, 270]
+                    rotate = rots[rrot]
+                else:
+                    texture_file = "sprites/cave_d0.png"
+
         tile = pygame.image.load(texture_file).convert_alpha()
         tile = pygame.transform.scale(tile, [width, height])
         if rotate != -1:
             tile = pygame.transform.rotate(tile, rotate)
         self.image = tile
         self.rect = self.image.get_rect()
+        self.id = tile_id
 
 class Level(object):
     def __init__(self, player):
@@ -191,10 +200,10 @@ class Level(object):
         # Draw the background
         # don't want coords to go above 0,0, or below -(backg_width-screen_width)
         bg_rect = self.background.get_rect()
-        bg_x = -(self.world_shift_x * bg_rect.width / 5000) # these consts should really depend on level size
-        bg_y = -(self.world_shift_y * bg_rect.height / 3000)
+        bg_x = -(self.world_shift_x * bg_rect.width / 22000) # these consts should really depend on level size
+        bg_y = -(self.world_shift_y * bg_rect.height / 6000)
         if bg_x > 0 : bg_x = 0
-        if bg_y > 0 : bg_x = 0
+        if bg_y > 0 : bg_y = 0
         if bg_x < SCREEN_WIDTH - bg_rect.width : bg_x = SCREEN_WIDTH - bg_rect.width
         if bg_y < SCREEN_HEIGHT - bg_rect.height: bg_y = SCREEN_HEIGHT - bg_rect.height
 
@@ -238,20 +247,17 @@ class Level_01(Level):
         sidelength = 50
         for row_i in range(height):
             for col_i in range(width):
-                if pixels[row_i][col_i] == 255: # this needs to be a tile
-                    neighbors = []
-                    neighbors.append(pixels[row_i - 1][col_i]) # add all neighbors in ARBL pattern
-                    neighbors.append(pixels[row_i][col_i + 1])
-                    neighbors.append(pixels[row_i + 1][col_i])
-                    neighbors.append(pixels[row_i][col_i - 1])
-                    block = Platform(sidelength, sidelength, neighbors) # Platform() takes care of correct texture
-                    block.rect.x = (col_i)*sidelength
-                    block.rect.y = row_i*sidelength
-                    block.player = self.player
-                    self.platform_list.add(block)
-                if pixels[row_i][col_i] == 200:
-                    neighbors = [1,1,1,1]
-                    block = Platform(sidelength, sidelength, neighbors)  # Platform() takes care of correct texture
+                pixel = pixels[row_i][col_i]
+                if pixel != 0: # this needs to be a tile
+                    if pixel == 255:
+                        neighbors = [pixels[row_i - 1][col_i],
+                                     pixels[row_i][col_i + 1],
+                                     pixels[row_i + 1][col_i],
+                                     pixels[row_i][col_i - 1]]
+                        block = Platform(sidelength, sidelength, neighbors)
+                    else:
+                        block = Platform(sidelength, sidelength, pixel)  # Platform() takes care of correct texture
+
                     block.rect.x = (col_i) * sidelength
                     block.rect.y = row_i * sidelength
                     block.player = self.player
@@ -332,7 +338,7 @@ def main():
 
         # If the player gets near the right side, shift the world left (-x)
         scroll_right = (SCREEN_WIDTH*0.6)
-        scroll_left = (SCREEN_WIDTH*0.3)
+        scroll_left = (SCREEN_WIDTH*0.4)
         if player.rect.right >= scroll_right:
             diff = player.rect.right - scroll_right
             player.rect.right = scroll_right
@@ -367,7 +373,7 @@ def main():
         # these are all sprites, and use the sprite .draw() on top of the level drawn stuff.
         active_sprite_list.draw(screen)
 
-        text = str(player.pos)
+        text = str(current_level.player.pos)
         draw_text(text, 100, 100, screen)
 
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
