@@ -1,178 +1,15 @@
 import pygame
 import png
-import random
-
-# from pygame import *
+from players import Player
+from interactables import * # Platforms, Character + Character subclasses
 
 # Global constants
-
 # Colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-GREY = (64, 64, 64)
-DARK_GREY = (10, 10, 13)
-LIGHT_GREY = (90, 90, 90)
 
 # Screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-#SCREEN_WIDTH = 1000
-#SCREEN_HEIGHT = 750
-
-
-
-class Player(pygame.sprite.Sprite):
-    """ General Player class, a subclass of Sprite """
-
-    def __init__(self):
-        super().__init__() # parent constructor (sprite.Sprite)
-
-        width = 33
-        height = 90 # Load left and right facing sprites and save
-        self.right_img = pygame.image.load("sprites/orpheus_ri1.png").convert_alpha()
-        self.left_img = pygame.image.load("sprites/orpheus_li1.png").convert_alpha()
-        self.right_img = pygame.transform.scale(self.right_img, [width, height])
-        self.left_img = pygame.transform.scale(self.left_img, [width, height])
-
-        self.image = self.right_img # set facing right at first
-        self.rect = self.image.get_rect()
-
-        # Set speed vector of player
-        self.change_x = 0
-        self.change_y = 0
-
-
-        # List of sprites we can bump against
-        self.level = None
-
-    def update(self):
-        # Gravity
-        self.calc_grav()
-
-        # Move left/right
-        self.rect.x += self.change_x
-
-        # See if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
-        for block in block_hit_list:
-            # If we are moving right,
-            # set our right side to the left side of the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-            elif self.change_x < 0:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-
-        # Move up/down
-        self.rect.y += self.change_y
-
-        # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
-        for block in block_hit_list:
-
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-            elif self.change_y < 0:
-                self.rect.top = block.rect.bottom
-
-            # Stop our vertical movement
-            self.change_y = 0
-
-        # stores overall position in the world
-        self.pos = [self.rect.x + self.level.world_shift_x, self.rect.y + self.level.world_shift_y]
-
-    def calc_grav(self):
-        if self.change_y == 0:
-            self.change_y = 1
-        else:
-            self.change_y += .35
-
-
-    def jump(self):
-        # move down a bit and see if there is a platform below us.
-        self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
-        self.rect.y -= 2
-
-        # If it is ok to jump, set our speed upwards
-        if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
-            self.change_y = -10
-
-    # Player-controlled movement:
-    def go_left(self):
-        self.change_x = -6
-        self.image = self.left_img
-
-    def go_right(self):
-        self.change_x = 6
-        self.image = self.right_img
-
-    def stop(self):
-        self.change_x = 0
-
-
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, width, height, data):
-        super().__init__()
-        # data is either a tile id specifier (for lava, water, other tiles)
-        # or it's just rock, and witll
-        # uses list of neighbors to determine which kind of sprite to use
-        # neighbors -> [above, right, below, left]
-        rotate = 0
-        if data == 186:
-            texture_file = "sprites/bad_lava.png"
-            tile_id = 1
-        elif data == 78:
-            texture_file = "sprites/water_t.png"
-            tile_id = 2
-        elif data == 35:
-            texture_file = "sprites/water_u1.png"
-            tile_id = 3
-        else:
-            tile_id = 0
-            if data == [0,255,255,255]: # standard floor
-                r = random.randint(1,3)
-                texture_file = "sprites/cave_f" + str(r) + ".png"
-            elif data == [255,255,0,255]: # ceiling
-                r = random.randint(1,2)
-                texture_file = "sprites/cave_c" + str(r) + ".png"
-            elif data == [255,0,255,255]: # left wall
-                texture_file = "sprites/cave_l1.png"
-            elif data == [255,255,255,0]: # right wall
-                texture_file = "sprites/cave_r1.png"
-            elif data == [0,0,255,255]: # corner like ^^|
-                texture_file = "sprites/cave_ur.png"
-                rotate = 0
-            elif data == [0,255,255,0]: # corner like |^^
-                texture_file = "sprites/cave_ur.png"
-                rotate = 90
-            elif data == [255,255,0,0]: # corner like |_
-                texture_file = "sprites/cave_ur.png"
-                rotate = 180
-            elif data == [255,0,0,255]: # corner like _|
-                texture_file = "sprites/cave_ur.png"
-                rotate = -90
-            else:
-                r = random.randint(1,5)
-                if r < 3:
-                    texture_file = "sprites/cave_d" + str(r) + ".png"
-                    rrot = random.randint(0,3)
-                    rots = [0, 90, 180, 270]
-                    rotate = rots[rrot]
-                else:
-                    texture_file = "sprites/cave_d0.png"
-
-        tile = pygame.image.load(texture_file).convert_alpha()
-        tile = pygame.transform.scale(tile, [width, height])
-        if rotate != -1:
-            tile = pygame.transform.rotate(tile, rotate)
-        self.image = tile
-        self.rect = self.image.get_rect()
-        self.id = tile_id
 
 class Level(object):
     def __init__(self, player):
@@ -212,6 +49,8 @@ class Level(object):
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen) # we really just want to draw those we can see...
         self.enemy_list.draw(screen)
+        #for enemy in self.enemy_list: # draws hitboxes around enemies/characters
+        #    pygame.draw.rect(screen, (255,0,0), enemy.rect, 2)
 
     def shift_world(self, shift_x, shift_y):
         # Keep track of the shift amount
@@ -256,12 +95,17 @@ class Level_01(Level):
                                      pixels[row_i][col_i - 1]]
                         block = Platform(sidelength, sidelength, neighbors)
                     else:
+
                         block = Platform(sidelength, sidelength, pixel)  # Platform() takes care of correct texture
 
                     block.rect.x = (col_i) * sidelength
                     block.rect.y = row_i * sidelength
                     block.player = self.player
                     self.platform_list.add(block)
+
+        # Characters
+        self.enemy_list.add(Boat(200, 65, "sprites/boat.png"))
+        self.enemy_list.add(Charon(170, 130, "sprites/charon.png"))
 
 def draw_text(text, xcor, ycor, screen):
     font = pygame.font.Font('freesansbold.ttf', 15)
@@ -299,8 +143,8 @@ def main():
     active_sprite_list = pygame.sprite.Group()
     player.level = current_level
 
-    player.rect.x = 400 # Spawn point
-    player.rect.y = 200
+    player.rect.x = 4000 # Spawn point
+    player.rect.y = 1500
     active_sprite_list.add(player)
 
     # Loop until the user clicks the close button.
@@ -334,7 +178,7 @@ def main():
 
         # technically, doesnt do anything rn. But this could be a check
         # for if tiles are on screen or not
-        # current_level.update()
+        current_level.update()
 
         # If the player gets near the right side, shift the world left (-x)
         scroll_right = (SCREEN_WIDTH*0.6)
