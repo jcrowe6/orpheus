@@ -6,7 +6,7 @@ import random
 # Also sets up picture and rect
 # Subclasses will call this constructor, then fill out position, update functions, activation boxes, etc.
 class Character(pygame.sprite.Sprite):
-    def __init__(self, width, height, texture):
+    def __init__(self, width, height, texture, lev):
         super().__init__()
 
         self.activated = False
@@ -19,32 +19,47 @@ class Character(pygame.sprite.Sprite):
         self.image = pic
         self.rect = self.image.get_rect()
 
+        self.level = lev
+
 
 class Boat(Character):
-    def __init__(self, width, height, texture):
-        super().__init__(width, height, texture)
+    def __init__(self, width, height, texture, lev):
+        super().__init__(width, height, texture, lev)
         self.name = "boat"
-        self.landing_depth = 40
+        self.landing_depth = 140
         self.rect.x = 4550
-        self.rect.y = 1685
+        self.rect.y = 1590
         self.collides_x = False
-
-    def update(self):
-        if self.activated:
-            self.rect.x += 2
-
-
-class Charon(Character):
-    def __init__(self, width, height, texture):
-        super().__init__(width, height, texture)
-        self.name = "charon"
-        self.rect.x = 4600
-        self.rect.y = 1599
-        self.collides_x = False
-        self.collides_y = False
         self.image = pygame.transform.flip(self.image, True, False)
 
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top-600, 150, 800)
+        self.message = ""
+        self.xspeed = 0
 
+
+    # constantly called if player in activation box.
+    # trigger is True if orpheus is playing music
+    def activate(self, trigger):
+        self.activated = True
+        self.message = "Hey Orpheus, what's poppin man."
+        if (trigger):
+            if self.rect.x < 5500: # x 5500 is about middle of Styx. if we're on the left, we want to move to the right
+                self.xspeed = 2.8
+            else:
+                self.xspeed = -2.8
+
+
+    def deactivate(self): # constantly called player's not in the activation box
+        self.activated = False
+        self.message = ""
+
+    def update(self):
+        self.pos = [self.rect.x + self.level.world_shift_x, self.rect.y + self.level.world_shift_y]
+        if self.xspeed != 0:
+            print(self.rect.right)
+            if self.pos[0] >= 5910: # hit right side of styx
+                self.xspeed = 0
+            self.rect.x += self.xspeed
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height, data):

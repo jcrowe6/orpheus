@@ -20,6 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.change_x = 0
         self.change_y = 0
 
+        self.playing_music = False
 
         # List of sprites we can bump against
         self.level = None
@@ -70,6 +71,12 @@ class Player(pygame.sprite.Sprite):
         # stores overall position in the world
         self.pos = [self.rect.x + self.level.world_shift_x, self.rect.y + self.level.world_shift_y]
 
+        for enemy in self.level.enemy_list:
+            if pygame.Rect.colliderect(self.rect, enemy.activation_box):
+                enemy.activate(self.playing_music)
+            else:
+                enemy.deactivate()
+
     def calc_grav(self):
         if self.change_y == 0:
             self.change_y = 1
@@ -98,3 +105,6 @@ class Player(pygame.sprite.Sprite):
 
     def stop(self):
         self.change_x = 0
+
+    def play_music(self):
+        self.playing_music = not self.playing_music

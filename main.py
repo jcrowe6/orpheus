@@ -10,13 +10,22 @@ RED = (255, 0, 0)
 # Screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+class CharacterGroup(pygame.sprite.Group):
+    def draw(self, surface):
+        sprites = self.sprites()
+        surface_blit = surface.blit
+        for spr in sprites:
+            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+            if spr.message != "":
+                draw_text(spr.message, 300, 100, surface)
+        self.lostsprites = []
 
 class Level(object):
     def __init__(self, player):
 
         # Set up groups of sprites, for easy mass drawing later
         self.platform_list = pygame.sprite.Group()
-        self.enemy_list = pygame.sprite.Group()
+        self.enemy_list = CharacterGroup()
 
         self.player = player
         # Background image
@@ -27,8 +36,6 @@ class Level(object):
 
     # Update everything on this level
     def update(self):
-        # doesn't really do anything right now.
-        # this would be good spot to check/change NPC state, flags for if tile is on screen, etc.
         self.platform_list.update()
         self.enemy_list.update()
 
@@ -49,8 +56,8 @@ class Level(object):
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen) # we really just want to draw those we can see...
         self.enemy_list.draw(screen)
-        #for enemy in self.enemy_list: # draws hitboxes around enemies/characters
-        #    pygame.draw.rect(screen, (255,0,0), enemy.rect, 2)
+        for enemy in self.enemy_list: # draws hitboxes around enemies/characters
+            pygame.draw.rect(screen, (255,0,0), enemy.activation_box, 2)
 
     def shift_world(self, shift_x, shift_y):
         # Keep track of the shift amount
@@ -65,6 +72,8 @@ class Level(object):
         for enemy in self.enemy_list:
             enemy.rect.x += shift_x
             enemy.rect.y += shift_y
+            enemy.activation_box.x += shift_x
+            enemy.activation_box.y += shift_y
 
 # Create platforms for the level
 class Level_01(Level):
@@ -104,11 +113,10 @@ class Level_01(Level):
                     self.platform_list.add(block)
 
         # Characters
-        self.enemy_list.add(Boat(200, 65, "sprites/boat.png"))
-        self.enemy_list.add(Charon(170, 130, "sprites/charon.png"))
+        self.enemy_list.add(Boat(208, 159, "sprites/charon_both.png", self))
 
 def draw_text(text, xcor, ycor, screen):
-    font = pygame.font.Font('freesansbold.ttf', 15)
+    font = pygame.font.Font('dogicabold.ttf', 15)
     black = font.render(text, True, (0, 0, 0))
     white = font.render(text, True, (255, 255, 255))
 
@@ -166,6 +174,8 @@ def main():
                     player.go_right()
                 if event.key == pygame.K_UP:
                     player.jump()
+                if event.key == pygame.K_x:
+                    player.play_music()
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT and player.change_x < 0:
