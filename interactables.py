@@ -21,6 +21,12 @@ class Character(pygame.sprite.Sprite):
 
         self.level = lev
 
+    def activate(self, trigger):
+        pass
+
+    def deactivate(self):
+        pass
+
 
 class Boat(Character):
     def __init__(self, width, height, texture, lev):
@@ -43,7 +49,7 @@ class Boat(Character):
         self.activated = True
         self.message = "Hey Orpheus, what's poppin man."
         if (trigger):
-            if self.rect.x < 5500: # x 5500 is about middle of Styx. if we're on the left, we want to move to the right
+            if self.pos[0] < 5500: # x 5500 is about middle of Styx. if we're on the left, we want to move to the right
                 self.xspeed = 2.8
             else:
                 self.xspeed = -2.8
@@ -56,10 +62,42 @@ class Boat(Character):
     def update(self):
         self.pos = [self.rect.x + self.level.world_shift_x, self.rect.y + self.level.world_shift_y]
         if self.xspeed != 0:
-            print(self.rect.right)
-            if self.pos[0] >= 5910: # hit right side of styx
+            if self.pos[0] >= 5735: # hit right side of styx
+                self.rect.x -= 10
                 self.xspeed = 0
+                self.activation_box = pygame.rect.Rect(self.rect.right, self.rect.top-600, 300, 800)
+            elif self.pos[0] <= 4500: # hit left side of styx
+                self.rect.x += 10
+                self.xspeed = 0
+                self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top-600, 150, 800)
             self.rect.x += self.xspeed
+
+class Cerberus(Character):
+    def __init__(self, width, height, texture, lev):
+        super().__init__(width, height, texture, lev)
+        self.name = "cerberus"
+        self.rect.x = 7600
+        self.rect.y = 1150
+        self.collides_x = True
+
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        self.message = ""
+
+    def activate(self, trigger):
+        if (trigger):
+            self.activated = True
+            self.message = "Snooooooze"
+            pic = pygame.image.load("sprites/cerberus_b.png").convert_alpha()
+            pic = pygame.transform.scale(pic, [self.rect.width, self.rect.height])
+            self.image = pic
+            self.collides_x = False
+            self.collides_y = False
+        else:
+            self.message = "Grrrrrrrrr"
+
+    def deactivate(self): # constantly called player's not in the activation box
+        self.activated = False
+        self.message = ""
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height, data):

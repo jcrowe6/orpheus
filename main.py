@@ -56,8 +56,8 @@ class Level(object):
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen) # we really just want to draw those we can see...
         self.enemy_list.draw(screen)
-        for enemy in self.enemy_list: # draws hitboxes around enemies/characters
-            pygame.draw.rect(screen, (255,0,0), enemy.activation_box, 2)
+        #for enemy in self.enemy_list: # draws hitboxes around enemies/characters
+            #pygame.draw.rect(screen, (255,0,0), enemy.activation_box, 2)
 
     def shift_world(self, shift_x, shift_y):
         # Keep track of the shift amount
@@ -114,6 +114,7 @@ class Level_01(Level):
 
         # Characters
         self.enemy_list.add(Boat(208, 159, "sprites/charon_both.png", self))
+        self.enemy_list.add(Cerberus(360, 220, "sprites/cerberus_a.png", self))
 
 def draw_text(text, xcor, ycor, screen):
     font = pygame.font.Font('dogicabold.ttf', 15)
@@ -151,7 +152,7 @@ def main():
     active_sprite_list = pygame.sprite.Group()
     player.level = current_level
 
-    player.rect.x = 4000 # Spawn point
+    player.rect.x = 7000 # Spawn point
     player.rect.y = 1500
     active_sprite_list.add(player)
 
