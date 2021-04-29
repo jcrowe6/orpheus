@@ -115,6 +115,8 @@ class Level_01(Level):
         # Characters
         self.enemy_list.add(Boat(208, 159, "sprites/charon_both.png", self))
         self.enemy_list.add(Cerberus(360, 220, "sprites/cerberus_a.png", self))
+        self.enemy_list.add(Hades(130, 216, "sprites/hades.png", self))
+        self.enemy_list.add(Eurydice(33,90,"sprites/eurydice.png", self))
 
 def draw_text(text, xcor, ycor, screen):
     font = pygame.font.Font('dogicabold.ttf', 15)
@@ -152,8 +154,8 @@ def main():
     active_sprite_list = pygame.sprite.Group()
     player.level = current_level
 
-    player.rect.x = 7000 # Spawn point
-    player.rect.y = 1500
+    player.rect.x = 0 # Spawn point
+    player.rect.y = 0
     active_sprite_list.add(player)
 
     # Loop until the user clicks the close button.

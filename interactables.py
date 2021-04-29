@@ -99,6 +99,42 @@ class Cerberus(Character):
         self.activated = False
         self.message = ""
 
+class Hades(Character):
+    def __init__(self, width, height, texture, lev):
+        super().__init__(width, height, texture, lev)
+        self.name = "hades"
+        self.rect.x = 11400
+        self.rect.y = 1740
+        self.collides_x = True
+
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        self.message = ""
+
+class Eurydice(Character):
+    def __init__(self, width, height, texture, lev):
+        super().__init__(width, height, texture, lev)
+        self.name = "eurydice"
+        self.rect.x = 11300
+        self.rect.y = 1860
+        self.collides_x = False
+        self.collides_y = False
+
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        self.message = ""
+
+    def activate(self, trigger):
+        if (trigger):
+            self.activated = True
+
+    def update(self):
+        if (self.activated):
+            self.rect.x = self.level.player.rect.x + 40
+            self.rect.y = self.level.player.rect.y
+
+
+
+
+
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width, height, data):
         super().__init__()

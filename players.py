@@ -12,6 +12,10 @@ class Player(pygame.sprite.Sprite):
         self.left_img = pygame.image.load("sprites/orpheus_li1.png").convert_alpha()
         self.right_img = pygame.transform.scale(self.right_img, [width, height])
         self.left_img = pygame.transform.scale(self.left_img, [width, height])
+        self.r_playing_img = pygame.image.load("sprites/orpheus_rp.png").convert_alpha()
+        self.r_playing_img = pygame.transform.scale(self.r_playing_img, [width+15, height])
+        self.l_playing_img = pygame.image.load("sprites/orpheus_lp.png").convert_alpha()
+        self.l_playing_img = pygame.transform.scale(self.l_playing_img, [width + 15, height])
 
         self.image = self.right_img # set facing right at first
         self.rect = self.image.get_rect()
@@ -19,13 +23,33 @@ class Player(pygame.sprite.Sprite):
         # Set speed vector of player
         self.change_x = 0
         self.change_y = 0
+        self.facing_right = True
 
         self.playing_music = False
+        self.counter = 0
 
         # List of sprites we can bump against
         self.level = None
 
+
     def update(self):
+        if (self.counter > 0):
+            self.counter -= 1
+        else:
+            self.playing_music = False
+
+        if (self.playing_music):
+            if (self.facing_right):
+                self.image = self.r_playing_img
+            else: self.image = self.l_playing_img
+        else:
+            if (self.facing_right):
+                self.image = self.right_img
+            else: self.image = self.left_img
+
+
+
+
         # Gravity
         self.calc_grav()
 
@@ -97,14 +121,19 @@ class Player(pygame.sprite.Sprite):
     # Player-controlled movement:
     def go_left(self):
         self.change_x = -6
+        self.facing_right = False
         self.image = self.left_img
 
     def go_right(self):
         self.change_x = 6
+        self.facing_right = True
         self.image = self.right_img
 
     def stop(self):
         self.change_x = 0
 
     def play_music(self):
-        self.playing_music = not self.playing_music
+        if (self.counter == 0):
+            self.playing_music = True
+            self.image = self.r_playing_img
+            self.counter = 120
