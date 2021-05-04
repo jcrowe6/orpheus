@@ -77,6 +77,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.change_y
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
+            if block.name == "lava" or block.name == "water":
+                self.level.state = "gameover"
             # Reset our position based on the top/bottom of the object.
             if self.change_y > 0:
                 self.rect.bottom = block.rect.top

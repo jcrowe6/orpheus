@@ -214,8 +214,8 @@ def main():
                         player.jump()
                     if event.key == pygame.K_x:
                         player.play_music()
-                    if event.key == pygame.K_e: # just for testing
-                        current_level.state = "gameover"
+                    #if event.key == pygame.K_e: # just for testing
+                    #    current_level.state = "gameover"
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and player.change_x < 0:

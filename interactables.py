@@ -131,6 +131,9 @@ class Cerberus(Character):
         self.collides_x = True
         self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 500, 800)
         self.message = ""
+        pic = pygame.image.load("sprites/cerberus_a.png").convert_alpha()
+        pic = pygame.transform.scale(pic, [self.rect.width, self.rect.height])
+        self.image = pic
         self.triggered = False
 
 
