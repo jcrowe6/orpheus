@@ -137,3 +137,10 @@ class Player(pygame.sprite.Sprite):
             self.playing_music = True
             self.image = self.r_playing_img
             self.counter = 120
+
+    # called at start of game and after dying. respawn
+    def reset(self):
+        self.rect.x = 400  # Spawn point
+        self.rect.y = 300
+        self.change_x = 0
+        self.change_y = 0

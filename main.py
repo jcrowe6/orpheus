@@ -35,9 +35,11 @@ class Level(object):
         self.world_shift_x = 0 # this will keep track of how much we've shifted
         self.world_shift_y = 0
 
+        self.state = "" # game state, could be "playing", "gameover", "homescreen", etc.
+
     # Update everything on this level
     def update(self):
-        self.platform_list.update()
+        # self.platform_list.update() # no platforms need updating right now
         self.enemy_list.update()
 
     # Draw everything in level. Called before drawing player, etc. later
@@ -118,9 +120,14 @@ class Level_01(Level):
         self.enemy_list.add(Cerberus(360, 220, "sprites/cerberus_a.png", self))
         self.enemy_list.add(Hades(130, 216, "sprites/hades.png", self))
         self.enemy_list.add(Eurydice(33,90,"sprites/eurydice.png", self))
+    def reset(self):
+        self.shift_world(self.world_shift_x, self.world_shift_y)
+        self.player.reset()
+        for enemy in self.enemy_list:
+            enemy.reset()
 
-def draw_text(text, surface):
-    rect = pygame.Rect((150,75), (500, 300))
+def draw_text(text, surface, pos=(150,75), size=(500,300)):
+    rect = pygame.Rect(pos, size)
     y = rect.top
     lineSpacing = 2
     font = pygame.font.Font('dogicabold.ttf', 15)
@@ -177,12 +184,12 @@ def main():
     # Set the current level
     current_level_no = 0
     current_level = level_list[current_level_no]
+    current_level.state = "playing" # currently just start in the game world
 
     active_sprite_list = pygame.sprite.Group()
     player.level = current_level
 
-    player.rect.x = 7000 # Spawn point
-    player.rect.y = 1700
+    player.reset()
     active_sprite_list.add(player)
 
     # Loop until the user clicks the close button.
@@ -193,80 +200,95 @@ def main():
 
     # -------- Main Program Loop -----------
     while not done:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
+        if current_level.state == "playing":
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    player.go_left()
-                if event.key == pygame.K_RIGHT:
-                    player.go_right()
-                if event.key == pygame.K_UP:
-                    player.jump()
-                if event.key == pygame.K_x:
-                    player.play_music()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        player.go_left()
+                    if event.key == pygame.K_RIGHT:
+                        player.go_right()
+                    if event.key == pygame.K_UP:
+                        player.jump()
+                    if event.key == pygame.K_x:
+                        player.play_music()
+                    if event.key == pygame.K_e: # just for testing
+                        current_level.state = "gameover"
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT and player.change_x < 0:
-                    player.stop()
-                if event.key == pygame.K_RIGHT and player.change_x > 0:
-                    player.stop()
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT and player.change_x < 0:
+                        player.stop()
+                    if event.key == pygame.K_RIGHT and player.change_x > 0:
+                        player.stop()
 
-        # Update the player.
-        active_sprite_list.update()
+            # Update the player.
+            active_sprite_list.update()
 
-        # technically, doesnt do anything rn. But this could be a check
-        # for if tiles are on screen or not
-        current_level.update()
+            # update all things in level (enemies)
+            current_level.update()
 
-        # If the player gets near the right side, shift the world left (-x)
-        scroll_right = (SCREEN_WIDTH*0.6)
-        scroll_left = (SCREEN_WIDTH*0.4)
-        if player.rect.right >= scroll_right:
-            diff = player.rect.right - scroll_right
-            player.rect.right = scroll_right
-            current_level.shift_world(-diff,0)
+            # If the player gets near the right side, shift the world left (-x)
+            scroll_right = (SCREEN_WIDTH*0.6)
+            scroll_left = (SCREEN_WIDTH*0.4)
+            if player.rect.right >= scroll_right:
+                diff = player.rect.right - scroll_right
+                player.rect.right = scroll_right
+                current_level.shift_world(-diff,0)
 
-        # If the player gets near the left side, shift the world right (+x)
-        if player.rect.left <= scroll_left:
-            diff = scroll_left - player.rect.left
-            player.rect.left = scroll_left
-            current_level.shift_world(diff,0)
+            # If the player gets near the left side, shift the world right (+x)
+            if player.rect.left <= scroll_left:
+                diff = scroll_left - player.rect.left
+                player.rect.left = scroll_left
+                current_level.shift_world(diff,0)
 
-        scroll_down = (SCREEN_HEIGHT*0.6)
-        scroll_up = (SCREEN_HEIGHT*0.4)
-        if player.rect.bottom >= scroll_down:
-            diff = player.rect.bottom - scroll_down
-            player.rect.bottom = scroll_down
-            current_level.shift_world(0, -diff)
+            scroll_down = (SCREEN_HEIGHT*0.6)
+            scroll_up = (SCREEN_HEIGHT*0.4)
+            if player.rect.bottom >= scroll_down:
+                diff = player.rect.bottom - scroll_down
+                player.rect.bottom = scroll_down
+                current_level.shift_world(0, -diff)
 
-        if player.rect.top <= scroll_up:
-            diff = scroll_up - player.rect.top
-            player.rect.top = scroll_up
-            current_level.shift_world(0, diff)
+            if player.rect.top <= scroll_up:
+                diff = scroll_up - player.rect.top
+                player.rect.top = scroll_up
+                current_level.shift_world(0, diff)
 
-        # needs to be more robust. calculate both coords, and store
-        # a real level finish location that we can check here
-        # and do something with...
-        # current_position = player.rect.x + current_level.world_shift_x
 
-        # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
-        current_level.draw(screen) # goes to Level class draw code
+            # current_position = player.rect.x + current_level.world_shift_x
 
-        # these are all sprites, and use the sprite .draw() on top of the level drawn stuff.
-        active_sprite_list.draw(screen)
+            # BEGIN DRAW CODE -------------------------------------------- ||
+            current_level.draw(screen) # goes to Level class draw code
 
-        #text = str(current_level.player.pos)
-        #draw_text(text, 100, 100, screen)
+            # these are all sprites, and use the sprite .draw() on top of the level drawn stuff.
+            active_sprite_list.draw(screen)
 
-        # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
+            #text = str(current_level.player.pos)
+            #draw_text(text, 100, 100, screen)
 
-        # Limit to 60 frames per second
-        clock.tick(60)
+            # END DRAW CODE ----------------------------------------------- ||
 
-        # Go ahead and update the screen with what we've drawn.
-        pygame.display.flip()
+            # Limit to 60 frames per second
+            clock.tick(60)
+
+            # Go ahead and update the screen with what we've drawn.
+            pygame.display.flip()
+
+        elif current_level.state == "gameover":
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        current_level.reset()
+                        current_level.state = "playing"
+
+            screen.fill((16,16,16))
+            draw_text("GAME OVER...", screen, (310,150))
+            draw_text("Press space to try again!", screen, (200, 400))
+            clock.tick(60)
+            pygame.display.flip()
 
     # Be IDLE friendly. If you forget this line, the program will 'hang'
     # on exit.

@@ -67,7 +67,14 @@ class Boat(Character):
                 self.image = self.right_img
                 self.xspeed = -1.5
                 self.crossed = True
-
+    def reset(self):
+        self.rect.x = 4550
+        self.rect.y = 1590
+        self.image = self.right_img
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        self.message = ""
+        self.xspeed = 0
+        self.crossed = False
 
     def deactivate(self): # constantly called player's not in the activation box
         self.activated = False
@@ -120,6 +127,13 @@ class Cerberus(Character):
     def deactivate(self): # constantly called player's not in the activation box
         self.activated = False
 
+    def reset(self):
+        self.collides_x = True
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 500, 800)
+        self.message = ""
+        self.triggered = False
+
+
 class Hades(Character):
     def __init__(self, width, height, texture, lev):
         super().__init__(width, height, texture, lev)
@@ -148,6 +162,9 @@ class Hades(Character):
     def deactivate(self):
         self.activated = False
 
+    def reset(self):
+        self.triggered = False
+
 class Eurydice(Character):
     def __init__(self, width, height, texture, lev):
         super().__init__(width, height, texture, lev)
@@ -175,8 +192,10 @@ class Eurydice(Character):
             self.rect.x = self.level.player.rect.x + 40
             self.rect.y = self.level.player.rect.y
 
-
-
+    def reset(self):
+        self.rect.x = 11550
+        self.rect.y = 1860
+        self.activated = False
 
 
 class Platform(pygame.sprite.Sprite):
