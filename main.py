@@ -2,6 +2,7 @@ import pygame
 import png
 from players import Player
 from interactables import * # Platforms, Character + Character subclasses
+import time
 
 # Global constants
 # Colors
@@ -17,7 +18,7 @@ class CharacterGroup(pygame.sprite.Group):
         for spr in sprites:
             self.spritedict[spr] = surface_blit(spr.image, spr.rect)
             if spr.message != "":
-                draw_text(spr.message, 300, 100, surface)
+                draw_text(spr.message, surface)
         self.lostsprites = []
 
 class Level(object):
@@ -57,7 +58,7 @@ class Level(object):
         self.platform_list.draw(screen) # we really just want to draw those we can see...
         self.enemy_list.draw(screen)
         #for enemy in self.enemy_list: # draws hitboxes around enemies/characters
-            #pygame.draw.rect(screen, (255,0,0), enemy.activation_box, 2)
+        #    pygame.draw.rect(screen, (255,0,0), enemy.activation_box, 2)
 
     def shift_world(self, shift_x, shift_y):
         # Keep track of the shift amount
@@ -118,17 +119,43 @@ class Level_01(Level):
         self.enemy_list.add(Hades(130, 216, "sprites/hades.png", self))
         self.enemy_list.add(Eurydice(33,90,"sprites/eurydice.png", self))
 
-def draw_text(text, xcor, ycor, screen):
+def draw_text(text, surface):
+    rect = pygame.Rect((150,75), (500, 300))
+    y = rect.top
+    lineSpacing = 2
     font = pygame.font.Font('dogicabold.ttf', 15)
-    black = font.render(text, True, (0, 0, 0))
-    white = font.render(text, True, (255, 255, 255))
 
-    blackRect = black.get_rect() # white on black so it can be seen regardless of backdrop
-    whiteRect = white.get_rect()
-    blackRect.center = (xcor, ycor)
-    whiteRect.center = (xcor + 3, ycor + 3)
-    screen.blit(black, blackRect)
-    screen.blit(white, whiteRect)
+    # get the height of the font
+    fontHeight = font.size("Tg")[1]
+
+    while text:
+        i = 1
+
+        # determine if the row of text will be outside our area
+        if y + fontHeight > rect.bottom:
+            break
+
+        # determine maximum width of line
+        while font.size(text[:i])[0] < rect.width and i < len(text):
+            i += 1
+
+        # if we've wrapped the text, then adjust the wrap to the last word
+        if i < len(text):
+            i = text.rfind(" ", 0, i) + 1
+
+        # render the line and blit it to the surface
+        #if bkg:
+        #    image = font.render(text[:i], 1, color, bkg)
+        #    image.set_colorkey(bkg)
+        #else:
+        #    image = font.render(text[:i], aa, color)
+        image = font.render(text[:i], None, (255,255,255))
+
+        surface.blit(image, (rect.left, y))
+        y += fontHeight + lineSpacing
+
+        # remove the text we just blitted
+        text = text[i:]
 
 def main():
     """ Main Program """
@@ -154,8 +181,8 @@ def main():
     active_sprite_list = pygame.sprite.Group()
     player.level = current_level
 
-    player.rect.x = 0 # Spawn point
-    player.rect.y = 0
+    player.rect.x = 7000 # Spawn point
+    player.rect.y = 1700
     active_sprite_list.add(player)
 
     # Loop until the user clicks the close button.
@@ -230,8 +257,8 @@ def main():
         # these are all sprites, and use the sprite .draw() on top of the level drawn stuff.
         active_sprite_list.draw(screen)
 
-        text = str(current_level.player.pos)
-        draw_text(text, 100, 100, screen)
+        #text = str(current_level.player.pos)
+        #draw_text(text, 100, 100, screen)
 
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 

@@ -36,23 +36,37 @@ class Boat(Character):
         self.rect.x = 4550
         self.rect.y = 1590
         self.collides_x = False
-        self.image = pygame.transform.flip(self.image, True, False)
+        self.left_img = self.image
+        self.right_img = pygame.transform.flip(self.image, True, False)
+        self.image = self.right_img
 
         self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top-600, 150, 800)
         self.message = ""
         self.xspeed = 0
+
+        self.crossed = False
 
 
     # constantly called if player in activation box.
     # trigger is True if orpheus is playing music
     def activate(self, trigger):
         self.activated = True
-        self.message = "Hey Orpheus, what's poppin man."
-        if (trigger):
-            if self.pos[0] < 5500: # x 5500 is about middle of Styx. if we're on the left, we want to move to the right
-                self.xspeed = 2.8
+        if self.pos[0] < 5500:  # x 5500 is about middle of Styx. if we're on the left, we want to move to the right
+            if self.crossed == False:
+                self.message = '"Greetings, Orpheus. I shan\'t let you cross the Styx without paying. Although, I haven\'t heard a good song in a long time."'
+                if (trigger):
+                    self.message = '"Okay, that\'s pretty good. Hop on board, and don\'t fall in."'
+                    self.image = self.left_img
+                    self.xspeed = 1.5
             else:
-                self.xspeed = -2.8
+                self.message = '"Get back safe. See you after a while."'
+        else:
+            self.message = '"Thanks for the song. Play again if you want to cross again."'
+            if (trigger):
+                self.message = '"Get on quick, and don\'t look back."'
+                self.image = self.right_img
+                self.xspeed = -1.5
+                self.crossed = True
 
 
     def deactivate(self): # constantly called player's not in the activation box
@@ -80,24 +94,31 @@ class Cerberus(Character):
         self.rect.y = 1150
         self.collides_x = True
 
-        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 500, 800)
         self.message = ""
+        self.triggered = False
+
+    def update(self):
+        if self.activated:
+            if self.triggered:
+                self.message = '"snoooooooozzeeee..."'
+            else:
+                self.message = '"GGGRRRRRRRRRRRRRRRRRRRRRRRR!!!!"'
+        else:
+            self.message = ''
 
     def activate(self, trigger):
+        self.activated = True
         if (trigger):
-            self.activated = True
-            self.message = "Snooooooze"
+            self.triggered = True
             pic = pygame.image.load("sprites/cerberus_b.png").convert_alpha()
             pic = pygame.transform.scale(pic, [self.rect.width, self.rect.height])
             self.image = pic
             self.collides_x = False
             self.collides_y = False
-        else:
-            self.message = "Grrrrrrrrr"
 
     def deactivate(self): # constantly called player's not in the activation box
         self.activated = False
-        self.message = ""
 
 class Hades(Character):
     def __init__(self, width, height, texture, lev):
@@ -107,19 +128,42 @@ class Hades(Character):
         self.rect.y = 1740
         self.collides_x = True
 
-        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        self.activation_box = pygame.rect.Rect(self.rect.left - 380, self.rect.top - 200, 450, 500)
         self.message = ""
+        self.triggered = False
+    def update(self):
+        if (self.activated):
+            if self.triggered:
+                self.message = '"That was... so beautiful... Okay, you may take Eurydice. But! If you turn around and look at her even once on the way out, I won\'t hesitate to take her from you!"'
+            else:
+                self.message = '"Good job getting so far Orpheus! But it may be tough to convince me, Hades, to release your wife Eurydice."'
+        else:
+            self.message = ''
+
+    def activate(self, trigger):
+        self.activated = True
+        if (trigger):
+            self.triggered = True
+
+    def deactivate(self):
+        self.activated = False
 
 class Eurydice(Character):
     def __init__(self, width, height, texture, lev):
         super().__init__(width, height, texture, lev)
         self.name = "eurydice"
-        self.rect.x = 11300
+        self.rect.x = 11550
         self.rect.y = 1860
         self.collides_x = False
         self.collides_y = False
 
-        self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 150, 800)
+        # wrong way to do this. Should really pass in a handler to another enemy if
+        # you want to access it's attributes. but this works for now
+        for e in self.level.enemy_list:
+            if e.name == "hades":
+                hades = e
+        self.activation_box = pygame.rect.Rect(hades.activation_box)
+
         self.message = ""
 
     def activate(self, trigger):
