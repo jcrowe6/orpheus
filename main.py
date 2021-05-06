@@ -1,8 +1,19 @@
-import pygame
+import sys, os
 import png
 from players import Player
 from interactables import * # Platforms, Character + Character subclasses
 import time
+
+# for helping pyinstaller create an exe
+# if you want to do that, run 'pip install pyinstaller' then 'pyinstaller main.spec' in cmd
+def resource_path(relative_path):
+    try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # Global constants
 # Colors
@@ -30,7 +41,7 @@ class Level(object):
 
         self.player = player
         # Background image
-        self.background = pygame.image.load("sprites/backg.jpeg").convert_alpha()
+        self.background = pygame.image.load(resource_path("sprites/backg.jpeg")).convert_alpha()
 
         self.world_shift_x = 0 # this will keep track of how much we've shifted
         self.world_shift_y = 0
@@ -90,7 +101,7 @@ class Level_01(Level):
 
         self.level_limit = 4000
 
-        img = png.Reader("sprites/level1.png").asDirect()
+        img = png.Reader(resource_path("sprites/level1.png")).asDirect()
         width = img[0]
         height = img[1]
         pixels = list(img[2])
@@ -130,7 +141,7 @@ def draw_text(text, surface, pos=(150,75), size=(500,300)):
     rect = pygame.Rect(pos, size)
     y = rect.top
     lineSpacing = 2
-    font = pygame.font.Font('dogicabold.ttf', 15)
+    font = pygame.font.Font(resource_path('sprites/dogicabold.ttf'), 15)
 
     # get the height of the font
     fontHeight = font.size("Tg")[1]
@@ -264,8 +275,8 @@ def main():
             # these are all sprites, and use the sprite .draw() on top of the level drawn stuff.
             active_sprite_list.draw(screen)
 
-            text = str(current_level.player.pos)
-            draw_text(text,screen,(0,0))
+            #text = str(current_level.player.pos)
+            #draw_text(text,screen,(0,0))
 
             # END DRAW CODE ----------------------------------------------- ||
 
@@ -306,8 +317,6 @@ def main():
             clock.tick(60)
             pygame.display.flip()
 
-    # Be IDLE friendly. If you forget this line, the program will 'hang'
-    # on exit.
     pygame.quit()
 
 

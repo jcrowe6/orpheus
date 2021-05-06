@@ -1,4 +1,14 @@
 import pygame
+import os, sys
+
+def resource_path(relative_path):
+    try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class Player(pygame.sprite.Sprite):
     """ General Player class, a subclass of Sprite """
@@ -8,13 +18,13 @@ class Player(pygame.sprite.Sprite):
 
         width = 33
         height = 90 # Load left and right facing sprites and save
-        self.right_img = pygame.image.load("sprites/orpheus_ri1.png").convert_alpha()
-        self.left_img = pygame.image.load("sprites/orpheus_li1.png").convert_alpha()
+        self.right_img = pygame.image.load(resource_path("sprites/orpheus_ri1.png")).convert_alpha()
+        self.left_img = pygame.image.load(resource_path("sprites/orpheus_li1.png")).convert_alpha()
         self.right_img = pygame.transform.scale(self.right_img, [width, height])
         self.left_img = pygame.transform.scale(self.left_img, [width, height])
-        self.r_playing_img = pygame.image.load("sprites/orpheus_rp.png").convert_alpha()
+        self.r_playing_img = pygame.image.load(resource_path("sprites/orpheus_rp.png")).convert_alpha()
         self.r_playing_img = pygame.transform.scale(self.r_playing_img, [width+15, height])
-        self.l_playing_img = pygame.image.load("sprites/orpheus_lp.png").convert_alpha()
+        self.l_playing_img = pygame.image.load(resource_path("sprites/orpheus_lp.png")).convert_alpha()
         self.l_playing_img = pygame.transform.scale(self.l_playing_img, [width + 15, height])
 
         self.image = self.right_img # set facing right at first

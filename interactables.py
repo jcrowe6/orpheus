@@ -1,6 +1,6 @@
 import pygame
 import random
-
+from main import resource_path
 # General Character superclass
 # By defuault all Characters are not activated and will collide
 # Also sets up picture and rect
@@ -14,7 +14,7 @@ class Character(pygame.sprite.Sprite):
         self.collides_x = True
         self.landing_depth = 0
 
-        pic = pygame.image.load(texture).convert_alpha()
+        pic = pygame.image.load(resource_path(texture)).convert_alpha()
         pic = pygame.transform.scale(pic, [width, height])
         self.image = pic
         self.rect = self.image.get_rect()
@@ -118,7 +118,7 @@ class Cerberus(Character):
         self.activated = True
         if (trigger):
             self.triggered = True
-            pic = pygame.image.load("sprites/cerberus_b.png").convert_alpha()
+            pic = pygame.image.load(resource_path("sprites/cerberus_b.png")).convert_alpha()
             pic = pygame.transform.scale(pic, [self.rect.width, self.rect.height])
             self.image = pic
             self.collides_x = False
@@ -131,7 +131,7 @@ class Cerberus(Character):
         self.collides_x = True
         self.activation_box = pygame.rect.Rect(self.rect.left - 180, self.rect.top - 600, 500, 800)
         self.message = ""
-        pic = pygame.image.load("sprites/cerberus_a.png").convert_alpha()
+        pic = pygame.image.load(resource_path("sprites/cerberus_a.png")).convert_alpha()
         pic = pygame.transform.scale(pic, [self.rect.width, self.rect.height])
         self.image = pic
         self.triggered = False
@@ -260,7 +260,7 @@ class Platform(pygame.sprite.Sprite):
                 else:
                     texture_file = "sprites/cave_d0.png"
 
-        tile = pygame.image.load(texture_file).convert_alpha()
+        tile = pygame.image.load(resource_path(texture_file)).convert_alpha()
         tile = pygame.transform.scale(tile, [width, height])
         if rotate != -1:
             tile = pygame.transform.rotate(tile, rotate)
