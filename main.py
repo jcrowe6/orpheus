@@ -264,8 +264,8 @@ def main():
             # these are all sprites, and use the sprite .draw() on top of the level drawn stuff.
             active_sprite_list.draw(screen)
 
-            #text = str(current_level.player.pos)
-            #draw_text(text, 100, 100, screen)
+            text = str(current_level.player.pos)
+            draw_text(text,screen,(0,0))
 
             # END DRAW CODE ----------------------------------------------- ||
 
@@ -287,6 +287,22 @@ def main():
             screen.fill((16,16,16))
             draw_text("GAME OVER...", screen, (310,150))
             draw_text("Press space to try again!", screen, (200, 400))
+            clock.tick(60)
+            pygame.display.flip()
+
+        elif current_level.state == "won":
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        current_level.reset()
+                        current_level.state = "playing"
+
+            screen.fill((16,16,16))
+            draw_text("Congratulations!", screen, (310,150))
+            draw_text("You did what the legendary Orpheus couldn't. Way to go!", screen, (310, 200))
+            draw_text("Press space to play again!", screen, (200, 400))
             clock.tick(60)
             pygame.display.flip()
 

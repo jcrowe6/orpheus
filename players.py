@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
 
         self.playing_music = False
         self.counter = 0
-
+        self.reached_end = False
         # List of sprites we can bump against
         self.level = None
 
@@ -103,6 +103,11 @@ class Player(pygame.sprite.Sprite):
             else:
                 enemy.deactivate()
 
+        if self.pos[0] > 9000:
+            self.reached_end = True
+        if self.pos[0] < 400 and self.reached_end:
+            self.level.state = "won"
+
     def calc_grav(self):
         if self.change_y == 0:
             self.change_y = 1
@@ -146,3 +151,4 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 300
         self.change_x = 0
         self.change_y = 0
+        self.reached_end = False

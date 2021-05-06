@@ -185,20 +185,28 @@ class Eurydice(Character):
         self.activation_box = pygame.rect.Rect(hades.activation_box)
 
         self.message = ""
+        self.triggered = False
 
     def activate(self, trigger):
+        self.activated = True
         if (trigger):
-            self.activated = True
+            self.triggered = True
+
+    def deactivate(self):
+        self.activated = False
 
     def update(self):
-        if (self.activated):
+        if (self.triggered):
             self.rect.x = self.level.player.rect.x + 40
             self.rect.y = self.level.player.rect.y
+            if (not self.activated) and (self.level.player.facing_right): # don't let orpheus turn around
+                self.level.state = "gameover"
 
     def reset(self):
         self.rect.x = 11550
         self.rect.y = 1860
         self.activated = False
+        self.triggered = False
 
 
 class Platform(pygame.sprite.Sprite):
